@@ -46,5 +46,13 @@ const Pagination = (props) => {
 
     );
 }
+
+// after defining pagination, we do type checking with propTypes
+
+Pagination.propTypes = {
+    itemsCount: PropTypes.number.isRequired, 
+    pageSize: PropTypes.number.isRequired,
+    currentPage: PropTypes.number.isRequired, 
+}
  
 export default Pagination;

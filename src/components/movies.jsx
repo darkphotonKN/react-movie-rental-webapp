@@ -1,15 +1,35 @@
 
 import React, { Component } from 'react';
 import { getMovies } from '../Starter Code/services/fakeMovieService';
-import Like from './like';
 import Pagination from './pagination';
 import { paginate } from './utils/paginate';
+import ListGroup from './listGroup';
+import { getGenres } from '../Starter Code/services/fakeGenreService';
+import MoviesTable from './moviesTable';
+import _ from 'lodash';
 
 class Movies extends Component {
     state = { 
-        movies: getMovies(), // retains the current state of the array of movie objects 
+        movies: [],  // initialize them because of time it takes to get data from servers
+        genres: [],
         currentPage: 1, // keeping track of which page is currently showing
-        pageSize: 4 // no. of movies allowed per page
+        pageSize: 4, // no. of movies allowed per page
+        sortColumn: { path: 'title', order: 'asc' }
+        
+    }
+
+    // life cycle hook - called when instance of this component is rendered in DOM
+    componentDidMount() {
+        // getting all genres and installing an "All Genre" object before the rest of the array
+        const getAllGenres = [{_id: "", name: "All Genres"}, ...getGenres()];
+
+        this.setState(
+            {
+                // retains the current state of the array of movie objects
+                movies: getMovies(), // acting as getting data from back-end service
+                genres: getAllGenres 
+            }
+        );
     }
 
     // load available movies and their stats
@@ -47,27 +67,42 @@ class Movies extends Component {
 
     // handling pagination 
     handlePageChange = page => {
-        this.setState({ currentPage: page });
+        this.setState({ currentPage: page, });
+    };
+
+    
+    // handling genre selection
+    handleGenreSelect = genreItem => {
+
+        this.setState({ selectedGenre: genreItem, currentPage: 1 }); // remember even though it only adds a selected genre
+        // and not changing anything else, setState() will rerender everything
+        // including the listGroup which will have an updated look
+        // currentPage: 1 resets currentPage to 1 when swapping between genres
+ 
+    };
+
+    // handle sorting tables
+    handleSort = sortColumn => {
+
+        this.setState({ sortColumn });
+        
     }
 
     
-    test() {
-        const items = [5, 3, 2, 12, 4, 2, 1, 3, 4, 1, 12]; 
-        const test = paginate(items, 3, 3);
-        console.log(test.forEach(item => console.log(item)));  
-    }
-
-
 
     render() { 
         /* check state how many movies there and display else display out of stock with no table */
         const { length: count } = this.state.movies; // object destructuring , getting the length property of this.state.movies and renaming it to "count"
-        const { currentPage, pageSize, movies: allMovies } = this.state;
+        const { currentPage, pageSize, selectedGenre, sortColumn, movies: allMovies } = this.state;
+
+        // use currently selectedGenre filter to .filter array of movies to ones that match genres
+        // only filter if selectedGenre is truthy else just return allMovies array
+        const filteredMovies = selectedGenre && selectedGenre._id ? allMovies.filter(m => m.genre.name === selectedGenre.name) : allMovies;
+
+        const sortedMovies = _.orderBy(filteredMovies, [sortColumn.path], [sortColumn.order]);
 
         // limit movies list to only current page of movies. "paginate" fn is imported
-        const movies = paginate(allMovies, currentPage, pageSize);
-        console.log(movies);
-        this.test();
+        const movies = paginate(sortedMovies, currentPage, pageSize);
 
         if (count === 0) {
             return <p>Sorry we are currently out of stock!</p>;
@@ -76,51 +111,41 @@ class Movies extends Component {
 
             return ( 
                 
-                <React.Fragment>
-                    {/* remember "count" is length of movies array state property that we destructured */}
-                    <p className="mb-4">There are currently { count } movies in the database.</p> 
-                    <h2>List of Movies</h2>
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Genre</th>
-                                <th>Stock</th>
-                                <th>Rate</th>
-                                <th></th>
-                                <th></th>{/* to lengthen table match delete btn area*/}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            { // () puts everything in one line so no 'return' statement'
-                                movies.map(movie => (
-                                        <tr key={movie._id}>
-                                            
-                                            <td>{movie.title}</td>
-                                            <td>{movie.genre.name}</td>
-                                            <td>{movie.numberInStock}</td>
-                                            <td>{movie.dailyRentalRate}</td>
-                                            <td><Like onToggleLike={this.handleToggleLike} movie={movie} liked={movie.liked}/></td>
-                                            <td><button onClick={() => this.handleDelete(movie._id)} className="btn btn-danger btn-sm">delete</button></td>
-                                            
-                                        </tr>
-                                    )
-                                )
-                            }
+                <div className="row">
+                    <div className="col-2">
+                        <ListGroup 
+                            items={this.state.genres}
+                            selectedItem={this.state.selectedGenre}
+                            // simiplied the interface of this ListGroup by making these default props 
+                            // check bottom of listGroup.jsx
+                            // textProperty="name" // pre hard pass the property so that array can access it directly
+                            // valueProperty="_id" // without ".name" and can use array[textProperty]
+                            onItemSelect={this.handleGenreSelect}
+                        />
+                    </div>
+                    <div className="col">
+                                            {/* remember "count" is length of movies array state property that we destructured */}
+                        <p className="mb-4">There are <span style={{ fontWeight: 'bold' }}>{ filteredMovies.length }</span> movies in the database that fit your criteria.</p> 
+                        <h2>List of Movies</h2>
+                        <MoviesTable 
+                            movies={movies}
+                            sortColumn={sortColumn}
+                            onDelete={this.handleDelete}
+                            onLike={this.handleToggleLike}
+                            onSort={this.handleSort}
+                        />
+                        <Pagination 
+                            itemsCount={filteredMovies.length} 
+                            pageSize={pageSize} 
+                            currentPage={currentPage}
+                            onPageChange={this.handlePageChange}
+                        /> { /* we destructured adn renamed length of movies array from state with: 
+                                                            const { length: count } = this.state.movies */ }
 
-                        </tbody>
-                    </table>
-                    <Pagination 
-                        itemsCount={count} 
-                        pageSize={pageSize} 
-                        currentPage={currentPage}
-                        onPageChange={this.handlePageChange}
-                    /> { /* we destructured adn renamed length of movies array from state with: 
-                                                          const { length: count } = this.state.movies */ }
 
-                    
-
-                </React.Fragment>
+                    </div>
+ 
+                </div>
 
             );
         }
