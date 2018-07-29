@@ -67,7 +67,7 @@ class Movies extends Component {
 
     // handling pagination 
     handlePageChange = page => {
-        this.setState({ currentPage: page, });
+        this.setState({ currentPage: page });
     };
 
     

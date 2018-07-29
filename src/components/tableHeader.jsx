@@ -29,6 +29,18 @@ class TableHeader extends Component {
         this.props.onSort(newSortColumn);
     }
 
+    // all logic for determining dynamic sort icon
+    renderSortIcon = column => {
+        // if no sorted order we don't want an icon
+        if(column.path === 'title') {
+            return null;
+        }
+        else {
+            return column.order === 'asc' ? <i className="fa fa-sort-asc ml-1"></i> : <i className="fa fa-sort-desc ml-1"></i> 
+        }
+
+    }
+
 
     render() { 
 
@@ -37,14 +49,13 @@ class TableHeader extends Component {
             <thead>
             <tr>
                 { this.props.columns.map(c => 
-                    <th key={ c.path || c.key } onClick={() => this.raiseSort(c.path)}>{c.label}</th>
+                    <th key={ c.path || c.key } onClick={() => this.raiseSort(c.path)}>
+                        {c.label}
+                        {/* creating a dynamic sort icon */}
+                        { this.renderSortIcon(this.props.sortColumn) }
+                    </th>
                 ) }
-                {/* <th onClick={() => this.raiseSort('title')}>Title</th>
-                <th onClick={() => this.raiseSort('genre.name')}>Genre</th>
-                <th onClick={() => this.raiseSort('numberInStock')}>Stock</th>
-                <th onClick={() => this.raiseSort('dailyRentalRate')}>Rate</th>
-                <th></th>
-                <th></th>to lengthen table match delete btn area */}
+
             </tr>
         </thead>
         );

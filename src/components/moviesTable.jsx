@@ -18,8 +18,6 @@ class MoviesTable extends Component {
     ]
     
 
-
-
     render() { 
         // destructuring our props
         const { movies, onSort, sortColumn } = this.props;
