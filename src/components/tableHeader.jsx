@@ -31,12 +31,16 @@ class TableHeader extends Component {
 
     // all logic for determining dynamic sort icon
     renderSortIcon = column => {
+        const { sortColumn } = this.props;
         // if no sorted order we don't want an icon
-        if(column.path === 'title') {
+        if(column.path !== sortColumn.path) {
             return null;
-        }
-        else {
-            return column.order === 'asc' ? <i className="fa fa-sort-asc ml-1"></i> : <i className="fa fa-sort-desc ml-1"></i> 
+        }    
+        // if order is asc shot ascending icon else descending icon
+        if (sortColumn.order === 'asc') { 
+            return <i className="fa fa-sort-asc ml-1"></i> 
+        } else {
+            return <i className="fa fa-sort-desc ml-1"></i> 
         }
 
     }
@@ -51,8 +55,8 @@ class TableHeader extends Component {
                 { this.props.columns.map(c => 
                     <th key={ c.path || c.key } onClick={() => this.raiseSort(c.path)}>
                         {c.label}
-                        {/* creating a dynamic sort icon */}
-                        { this.renderSortIcon(this.props.sortColumn) }
+                        {/* creating a dynamic sort icon, display for all columns but the like and delete column (when c.path !== true) */}
+                        { c.path ? this.renderSortIcon(c): null }
                     </th>
                 ) }
 
