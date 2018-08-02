@@ -4,14 +4,15 @@ import _ from 'lodash';
 class TableBody extends Component {
 
     
-    renderTableCell = (column, item) => {
-        if(!column.content) /* using lodash to get property value by supplying the object and a path
-                                    e.g. object is { title: "Nba 2k16", genre: sports}, path is "title"
-                                    This circumvents paths nested like "genre.name" which you cannot use object[] to find 
-                                          V */
-            return <td key={column.path}>{_.get(item, column.path)}</td>
-        
-        return <td key={column.key}>{column.content(item)}</td>
+    renderTableCell = (item, column) => {
+        // if there exists a 'content' property (which is a fn as we defined it), return that passing in the current
+        // movie object which was passed into this function as the 'item' argument
+        if(column.content) 
+            return column.content(item);
+        /* using lodash to get property value by supplying the object and a path
+        e.g. object is { title: "Nba 2k16", genre: sports}, path is "title"
+        This circumvents paths nested like "genre.name" which you cannot use object[] to find */
+        return _.get(item, column.path);
     }
     
     render() {
@@ -20,7 +21,7 @@ class TableBody extends Component {
         return ( 
             <tbody>
                 {data.map(item => <tr key={item._id}>
-                        {columns.map(c => this.renderTableCell(c, item))}
+                        {columns.map(c => <td key={item._id + (c.path || c.key)}>{this.renderTableCell(item, c)}</td>)}
                     </tr>)}
             </tbody>
         );

@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import Like from './like'; // for liking / unliking movies
-import TableHeader from './tableHeader';
-import TableBody from './tableBody';
-
+import Table from './table';
+import { Link } from 'react-router-dom';
 
 class MoviesTable extends Component {
 
     columns = [
-        { path: 'title', label: 'Title'},
+        { 
+          path: 'title', 
+          label: 'Title', 
+          content: movie => <Link to={`/movies/${movie._id}`}>{movie.title}</Link>
+        },
         { path: 'genre.name', label: 'Genre'},
         { path: 'numberInStock', label: 'Stock'},
         { path: 'dailyRentalRate', label: 'Rate'},
@@ -23,19 +26,12 @@ class MoviesTable extends Component {
         const { movies, onSort, sortColumn } = this.props;
 
         return (    
-            <table className="table">
-                <TableHeader 
-                    columns={this.columns}
-                    onSort={onSort}
-                    sortColumn={sortColumn}
-                />
-
-                <TableBody
-                    columns={this.columns}
-                    data={movies}
-                >
-                </TableBody>
-            </table>
+            <Table 
+                movies={movies} 
+                sortColumn={sortColumn} 
+                onSort={onSort}
+                columns={this.columns}
+            />
         );
     }
 }

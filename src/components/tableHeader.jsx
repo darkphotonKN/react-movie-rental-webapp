@@ -42,7 +42,6 @@ class TableHeader extends Component {
         } else {
             return <i className="fa fa-sort-desc ml-1"></i> 
         }
-
     }
 
 
@@ -51,17 +50,16 @@ class TableHeader extends Component {
 
         return ( 
             <thead>
-            <tr>
-                { this.props.columns.map(c => 
-                    <th key={ c.path || c.key } onClick={() => this.raiseSort(c.path)}>
-                        {c.label}
-                        {/* creating a dynamic sort icon, display for all columns but the like and delete column (when c.path !== true) */}
-                        { c.path ? this.renderSortIcon(c): null }
-                    </th>
-                ) }
-
-            </tr>
-        </thead>
+                <tr>
+                    { this.props.columns.map(c => 
+                        <th key={ c.path || c.key } onClick={() => this.raiseSort(c.path)} className='clickable'>
+                            {c.label}
+                            {/* creating a dynamic sort icon, display for all columns but the like and delete column (when c.path !== true) */}
+                            { c.path ? this.renderSortIcon(c): null }
+                        </th>
+                    ) }
+                </tr>
+            </thead>
         );
     }
 }

@@ -88,13 +88,8 @@ class Movies extends Component {
         
     }
 
-    
-
-    render() { 
-        /* check state how many movies there and display else display out of stock with no table */
-        const { length: count } = this.state.movies; // object destructuring , getting the length property of this.state.movies and renaming it to "count"
+    getData() {  
         const { currentPage, pageSize, selectedGenre, sortColumn, movies: allMovies } = this.state;
-
         // use currently selectedGenre filter to .filter array of movies to ones that match genres
         // only filter if selectedGenre is truthy else just return allMovies array
         const filteredMovies = selectedGenre && selectedGenre._id ? allMovies.filter(m => m.genre.name === selectedGenre.name) : allMovies;
@@ -104,14 +99,28 @@ class Movies extends Component {
         // limit movies list to only current page of movies. "paginate" fn is imported
         const movies = paginate(sortedMovies, currentPage, pageSize);
 
+        // we want to return both movies and filteredMovies which this method creates
+        return {data: movies, filteredData: filteredMovies};
+    }
+
+
+    render() { 
+        /* check state how many movies there and display else display out of stock with no table */
+        const { length: count } = this.state.movies; // object destructuring 
+        const { currentPage, pageSize, sortColumn} = this.state;
+
+        // display an error message if database is empty
         if (count === 0) {
             return <p>Sorry we are currently out of stock!</p>;
         } 
-        else {
+        
+        // gets data and destructures them to suitable names
+        const { data: movies, filteredData: filteredMovies } = this.getData(); 
 
-            return ( 
-                
+        return ( 
+            <div>
                 <div className="row">
+                    
                     <div className="col-2">
                         <ListGroup 
                             items={this.state.genres}
@@ -127,6 +136,7 @@ class Movies extends Component {
                                             {/* remember "count" is length of movies array state property that we destructured */}
                         <p className="mb-4">There are <span style={{ fontWeight: 'bold' }}>{ filteredMovies.length }</span> movies in the database that fit your criteria.</p> 
                         <h2>List of Movies</h2>
+                        {/* Rental App - Movies Cusomters Rentals */}
                         <MoviesTable 
                             movies={movies}
                             sortColumn={sortColumn}
@@ -139,16 +149,17 @@ class Movies extends Component {
                             pageSize={pageSize} 
                             currentPage={currentPage}
                             onPageChange={this.handlePageChange}
-                        /> { /* we destructured adn renamed length of movies array from state with: 
+                        /> { /* we destructured and renamed length of movies array from state with: 
                                                             const { length: count } = this.state.movies */ }
 
 
                     </div>
- 
-                </div>
 
-            );
-        }
+                </div>
+            </div>
+
+        );
+        
     }
 }
  

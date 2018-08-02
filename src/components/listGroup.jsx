@@ -21,5 +21,5 @@ listGroup.defaultProps = {
     textProperty: "name",
     valueProperty: "_id"
 }
- 
+
 export default listGroup;
