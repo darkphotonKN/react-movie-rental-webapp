@@ -8,7 +8,7 @@ submitted, and decide what to return when form is rendered */
 
 class LoginForm extends Form { 
     state = {
-        item: { username: '', password: '' }, // storing username / pass as a state
+        data: { username: '', password: '' }, // storing username / pass as a state
         errors: {} // handle errors by storing error messages in a state 
     }
 

@@ -5,7 +5,7 @@ import Form from './form';
 
 class RegisterForm extends Form {
     state = { 
-        item: { username: '', password: '', name: ''},
+        data: { username: '', password: '', name: ''},
         errors: {}
     }
 
