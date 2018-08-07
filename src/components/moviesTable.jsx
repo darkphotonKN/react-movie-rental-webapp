@@ -8,7 +8,9 @@ class MoviesTable extends Component {
     columns = [
         { 
           path: 'title', 
-          label: 'Title', 
+          label: 'Title',                       // setting path of url to movie._id, where Route is in the form
+                                                // to="/movie/:id" making this a id param under match inherent prop on the movie
+                                                // form page 
           content: movie => <Link to={`/movies/${movie._id}`}>{movie.title}</Link>
         },
         { path: 'genre.name', label: 'Genre'},

@@ -7,6 +7,7 @@ import ListGroup from './listGroup';
 import { getGenres } from '../Starter Code/services/fakeGenreService';
 import MoviesTable from './moviesTable';
 import _ from 'lodash';
+import { Link } from 'react-router-dom';
 
 class Movies extends Component {
     state = { 
@@ -133,6 +134,7 @@ class Movies extends Component {
                         />
                     </div>
                     <div className="col">
+                        <button className="btn btn-primary mb-4"><Link style={{ color: 'white'}} to="/movies/new"> New Movie </Link></button>
                                             {/* remember "count" is length of movies array state property that we destructured */}
                         <p className="mb-4">There are <span style={{ fontWeight: 'bold' }}>{ filteredMovies.length }</span> movies in the database that fit your criteria.</p> 
                         <h2>List of Movies</h2>
