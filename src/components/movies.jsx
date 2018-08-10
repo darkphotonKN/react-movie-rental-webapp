@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react';
 import { getMovies } from '../Starter Code/services/fakeMovieService';
 import Pagination from './pagination';
@@ -6,6 +5,7 @@ import { paginate } from './utils/paginate';
 import ListGroup from './listGroup';
 import { getGenres } from '../Starter Code/services/fakeGenreService';
 import MoviesTable from './moviesTable';
+import SearchInput from './searchInput';
 import _ from 'lodash';
 import { Link } from 'react-router-dom';
 
@@ -15,8 +15,9 @@ class Movies extends Component {
         genres: [],
         currentPage: 1, // keeping track of which page is currently showing
         pageSize: 4, // no. of movies allowed per page
-        sortColumn: { path: 'title', order: 'asc' }
-        
+        sortColumn: { path: 'title', order: 'asc' },
+        selectedGenre: null,
+        searchQuery: '' // current active search query 
     }
 
     // life cycle hook - called when instance of this component is rendered in DOM
@@ -89,11 +90,25 @@ class Movies extends Component {
         
     }
 
+    // handle search bar user input, query is an event input value passed in from the SearchInput component
+    handleSearch = query => {
+        console.log(query);
+        this.setState({ searchQuery: query, currentPage: 1 });
+    }
+
     getData() {  
-        const { currentPage, pageSize, selectedGenre, sortColumn, movies: allMovies } = this.state;
+        const { currentPage, pageSize, selectedGenre, sortColumn, searchQuery, movies: allMovies } = this.state;    
+        
+        let filteredMovies = allMovies;
+        const queryLen = searchQuery.length;
+        
+        if(searchQuery) {
+            filteredMovies = allMovies.filter(m => m.title.slice(0, queryLen).toLowerCase() === searchQuery.toLowerCase() ? m : null);
+        }    
         // use currently selectedGenre filter to .filter array of movies to ones that match genres
-        // only filter if selectedGenre is truthy else just return allMovies array
-        const filteredMovies = selectedGenre && selectedGenre._id ? allMovies.filter(m => m.genre.name === selectedGenre.name) : allMovies;
+        // only filter if selectedGenre is truthy else just return allMovies array 
+        if(selectedGenre && selectedGenre._id) filteredMovies = allMovies.filter(m => m.genre.name === selectedGenre.name);
+        
 
         const sortedMovies = _.orderBy(filteredMovies, [sortColumn.path], [sortColumn.order]);
 
@@ -104,6 +119,15 @@ class Movies extends Component {
         return {data: movies, filteredData: filteredMovies};
     }
 
+    // returning display of how many movies are in the database (filtered or otherwise) or a warning when there are none
+    dynamicCheckList = (movies) => {
+        if (movies.length === 0) {
+            return <p>Nothing in the database matches your search!</p>;
+        } else {
+            return <p className="mb-4">There are <span style={{ fontWeight: 'bold' }}>{ movies.length }</span> movies in the database that fit your criteria.</p>
+        }
+    }
+
 
     render() { 
         /* check state how many movies there and display else display out of stock with no table */
@@ -111,9 +135,7 @@ class Movies extends Component {
         const { currentPage, pageSize, sortColumn} = this.state;
 
         // display an error message if database is empty
-        if (count === 0) {
-            return <p>Sorry we are currently out of stock!</p>;
-        } 
+
         
         // gets data and destructures them to suitable names
         const { data: movies, filteredData: filteredMovies } = this.getData(); 
@@ -136,7 +158,11 @@ class Movies extends Component {
                     <div className="col">
                         <button className="btn btn-primary mb-4"><Link style={{ color: 'white'}} to="/movies/new"> New Movie </Link></button>
                                             {/* remember "count" is length of movies array state property that we destructured */}
-                        <p className="mb-4">There are <span style={{ fontWeight: 'bold' }}>{ filteredMovies.length }</span> movies in the database that fit your criteria.</p> 
+                        { this.dynamicCheckList(filteredMovies) } {/* Used to have another parameter 'count' */}
+                        <SearchInput
+                            // movies={movies}
+                            onChange={this.handleSearch}
+                        /> 
                         <h2>List of Movies</h2>
                         {/* Rental App - Movies Cusomters Rentals */}
                         <MoviesTable 
